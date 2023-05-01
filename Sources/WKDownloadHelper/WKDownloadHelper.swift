@@ -22,24 +22,23 @@ public class WKDownloadHelper: NSObject {
     /// present the webview and eventually dismiss it when it is no more necessary.
     /// - Parameters:
     ///   - webView: the WKWebView necessary to download files
-    ///   - supportedMimeTypes: an array of ``MimeType`` supported.
+    ///   - supportedMimeTypes: an array of ``WKMimeType`` supported.
     ///   - delegate: the ``WKDownloadHelperDelegate`` object
     public init(webView: WKWebView,
-         supportedMimeTypes: [MimeType],
+         supportedMimeTypes: [WKMimeType],
          delegate: WKDownloadHelperDelegate) {
         self.webView = webView
         self.delegate = delegate
         self.mimeTypes = supportedMimeTypes
         super.init()
-        webView.navigationDelegate = self
     }
     
     // MARK: - Private
     
-    private var webView: WKWebView
+    private weak var webView: WKWebView?
     internal var delegate: WKDownloadHelperDelegate?
     internal var fileDestinationURL: URL?
-    internal var mimeTypes: [MimeType] = []
+    internal var mimeTypes: [WKMimeType] = []
     
     /// Download data from a specific url and call a completion handler once done
     /// - Parameters:
@@ -50,7 +49,7 @@ public class WKDownloadHelper: NSObject {
                               fileName:String,
                               completion:@escaping (Bool, URL?) -> Void) {
         let downloadURL = removeBlob(fromUrl: url)
-        webView.configuration.websiteDataStore.httpCookieStore.getAllCookies() { cookies in
+        webView?.configuration.websiteDataStore.httpCookieStore.getAllCookies() { cookies in
             let session = URLSession.shared
             session.configuration.httpCookieStorage?.setCookies(cookies, for: url, mainDocumentURL: nil)
             let task = session.downloadTask(with: downloadURL) { localURL, urlResponse, error in
@@ -112,7 +111,7 @@ public class WKDownloadHelper: NSObject {
     /// - Returns: true if the type is configured
     internal func isMimeTypeConfigured(_ mimeType:String) -> Bool {
         for record in mimeTypes {
-            if mimeType.contains(record.type) {
+            if mimeType == record.value {
                 return true
             }
         }

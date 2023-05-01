@@ -12,9 +12,9 @@ import Foundation
 /// A MIME type is composed of a string describing the type
 /// and a file extension expected for it
 /// ```
-/// MimeType(type: "pdf", fileExtension: "pdf")
+/// WKMimeType(type: "pdf", fileExtension: "pdf")
 /// ```
-public struct MimeType {
+public struct WKMimeType {
     /// string representing the MIME type
     var type:String
     /// string with the file extension associated with the type
@@ -27,5 +27,9 @@ public struct MimeType {
     public init(type: String, fileExtension: String) {
         self.type = type
         self.fileExtension = fileExtension
+    }
+    
+    var value: String {
+        return "\(type)/\(fileExtension)"
     }
 }
